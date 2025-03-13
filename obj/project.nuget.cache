@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "YgUK/3oqP+4=",
+  "success": true,
+  "projectFilePath": "c:\\Users\\afob2\\Documents\\eepAssembler-main\\deca_challenge_2025\\eepassem.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\afob2\\.nuget\\packages\\fsharp.core\\8.0.403\\fsharp.core.8.0.403.nupkg.sha512"
+  ],
+  "logs": []
+}
