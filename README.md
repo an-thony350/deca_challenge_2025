@@ -1,6 +1,6 @@
 # DECA Challenge 2025
 
-Modified version of the EEP1 CPU with half-precision floating point multiplication support, MOVR instruction, a minimal macro parser implementation in Python `macro_parser.py' and a calculator for multiplying half-precision floating numbers `half_precision_calculator.py`.
+Modified version of the EEP1 CPU with half-precision floating point multiplication support, MOVR instruction, a minimal macro parser implementation in Python `macro_parser.py` and a calculator for multiplying half-precision floating numbers `half_precision_calculator.py`.
 
 ## The Software
 
