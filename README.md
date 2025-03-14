@@ -57,7 +57,7 @@ can be converted back to decimal. Let
 $s = \text{sign} = \text{N[15]}$,
 $e = \text{exponent} = \text{N[14:10]}$,
 $f = \text{fraction} = \text{N[9:0]}$ and
-$b = 2^{\text{sizeof(e) - 1} = 2^4 - 1 = 15 = \text{base}$.
+$b = 2^{\text{sizeof(e) - 1}} = 2^4 - 1 = 15 = \text{base}$.
 
 $$\left(-1\right)^s 2^{e - b} \left(1 + f\right) = \left(-1\right)^0 2^{\left(15 - 15\right)} \left(1 + 0\right) = \left(-1\right)^0 2^0 = 1$$
 
@@ -68,8 +68,8 @@ $s_\text{A}, s_\text{B}, s_\text{C}$; exponents
 $e_\text{A}, e_\text{B}, e_\text{C}$; fractions
 $f_\text{A}, f_\text{B}, f_\text{C}$.
 
-$$\text{A} \times \text{B} &= \left(-1\right)^{s_\text{A} + s_\text{B}} 2^{e_\text{A} + e_\text{B} - 2b} \left(1 + f_\text{A}\right) \left(1 + f_\text{B}\right) = \left(-1\right)^{s_\text{A} + s_\text{B}} 2^{e_\text{A} + e_\text{B} - 2b} \left(1 + f_\text{A} + f_\text{B} + f_\text{A} f_\text{B}\right)\\
-    &= \left(-1\right)^{s_\text{C}} 2^{e_\text{C} - b} \left(1 + f_\text{C}\right), \text{ then } s_\text{C} = \text{XOR(\begin{math} s_\text{A}, s_\text{B} \end{math})}, e_\text{C} = e_\text{A} + e_\text{B} - b, f_\text{C} = f_\text{A} + f_\text{B} + f_\text{A} f_\text{B}$$
+$$\text{A} \times \text{B} = \left(-1\right)^{s_\text{A} + s_\text{B}} 2^{e_\text{A} + e_\text{B} - 2b} \left(1 + f_\text{A}\right) \left(1 + f_\text{B}\right) = \left(-1\right)^{s_\text{A} + s_\text{B}} 2^{e_\text{A} + e_\text{B} - 2b} \left(1 + f_\text{A} + f_\text{B} + f_\text{A} f_\text{B}\right)\\
+    = \left(-1\right)^{s_\text{C}} 2^{e_\text{C} - b} \left(1 + f_\text{C}\right), \text{ then } s_\text{C} = \text{XOR(\begin{math} s_\text{A}, s_\text{B} \end{math})}, e_\text{C} = e_\text{A} + e_\text{B} - b, f_\text{C} = f_\text{A} + f_\text{B} + f_\text{A} f_\text{B}$$
 
 but the fraction part should be between 0 and 1 thus, if
 $1 + f_\text{C} \ge 2$ then $1 + f_\text{C}$ is divided by 2 and the
