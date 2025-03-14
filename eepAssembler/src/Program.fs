@@ -1,6 +1,9 @@
 ﻿module program
 open System
+open System.Diagnostics 
+open System.IO
 open EEExtensions
+
 
 type Register = Regist of int | Flags | PCX
 
@@ -561,6 +564,27 @@ let parseLines (txtL: string list) =
             | lst -> Error lst)
     | lst -> Error lst
 
+let runPythonMacroParser (inputPath: string) (outputPath: string) =
+    let startInfo = Diagnostics.ProcessStartInfo() // Use Diagnostics.ProcessStartInfo
+    startInfo.FileName <- "python"
+    startInfo.Arguments <- $"\"../macro_parser.py\" \"{inputPath}\" \"{outputPath}\""
+    startInfo.UseShellExecute <- false
+    startInfo.RedirectStandardOutput <- true
+    startInfo.RedirectStandardError <- true
+    startInfo.CreateNoWindow <- true
+
+    use proc = new Diagnostics.Process() // Use Diagnostics.Process
+    proc.StartInfo <- startInfo
+    proc.Start() |> ignore
+    let output = proc.StandardOutput.ReadToEnd()
+    let error = proc.StandardError.ReadToEnd()
+    proc.WaitForExit()
+
+    if proc.ExitCode <> 0 then
+        Error $"Macro parser failed with exit code {proc.ExitCode}: {error}"
+    else
+        Ok output
+
 let assembler (path:string) =
     let formatAssembly (lines: Line list) =
         lines
@@ -574,23 +598,29 @@ let assembler (path:string) =
     let dir = IO.Path.GetDirectoryName path
     match ext.ToUpper() with
     | ".TXT" ->
-        IO.File.ReadAllLines path
-        |> Array.toList
-        |> parseLines
-        |> function | Error lst -> 
-                        printfn $"Assembly errors in file '{path}':"
-                        printfn "%s" (String.concat "\n" lst)
-                        ()
-                    | Ok lst ->
-                        let pathOut = 
-                            IO.Path.ChangeExtension(path, "ram")
-                        let output = 
-                            formatAssembly lst
-                            |> List.toArray
-                        IO.File.WriteAllLines(pathOut, output)
-                        printfn $"Successful assembly of '{path}'"
-                        printfn $"{output.Length} lines written to '{pathOut}'"
-                        
+        // Preprocess with Python macro parser
+        let processedPath = IO.Path.ChangeExtension(path, "processed.txt")
+        match runPythonMacroParser path processedPath with
+        | Ok _ ->
+            // Read the preprocessed file
+            IO.File.ReadAllLines processedPath
+            |> Array.toList
+            |> parseLines
+            |> function 
+                | Error lst -> 
+                    printfn $"Assembly errors in file '{path}':"
+                    printfn "%s" (String.concat "\n" lst)
+                    ()
+                | Ok lst ->
+                    let pathOut = IO.Path.ChangeExtension(path, "ram")
+                    let output = formatAssembly lst |> List.toArray
+                    IO.File.WriteAllLines(pathOut, output)
+                    printfn $"Successful assembly of '{path}'"
+                    printfn $"{output.Length} lines written to '{pathOut}'"
+            // Clean up temporary file
+            IO.File.Delete(processedPath)
+        | Error e ->
+            printfn $"Macro preprocessing failed: {e}"
     | s -> 
         printfn $"EEP1asm is watching {dir}, noted a file extension {ext} \
                     only files with extension 'txt' will be assembled"
