@@ -1,4 +1,0 @@
-MOV R0, #24
-MOV R1, R0
-ADD R2, R0, R1
-ADD R0, #8
