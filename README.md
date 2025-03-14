@@ -54,32 +54,30 @@ reference="tab:binary16"}.
 
 This number N is the floating point representation of 1 in binary 16. It
 can be converted back to decimal. Let
-$ s = \text{sign} = \text{N[15]} $,
-$ e = \text{exponent} = \text{N[14:10]} $,
-$ f = \text{fraction} = \text{N[9:0]} $ and
-$ b = 2^{\text{sizeof(e) - 1} = 2^4 - 1 = 15 = \text{base} $.
+$s = \text{sign} = \text{N[15]}$,
+$e = \text{exponent} = \text{N[14:10]}$,
+$f = \text{fraction} = \text{N[9:0]}$ and
+$b = 2^{\text{sizeof(e) - 1} = 2^4 - 1 = 15 = \text{base}$.
 
 $$\left(-1\right)^s 2^{e - b} \left(1 + f\right) = \left(-1\right)^0 2^{\left(15 - 15\right)} \left(1 + 0\right) = \left(-1\right)^0 2^0 = 1$$
 
-Here, $ f = \sum_{i=0}^{9} \text{N[i]} 2^{-1-i} $ is the decimal
+Here, $f = \sum_{i=0}^{9} \text{N[i]} 2^{-1-i}$ is the decimal
 representation of the fraction. Now let's multiply two floating point
 numbers A and B resulting in number C with signs
-$ s_\text{A}, s_\text{B}, s_\text{C} $; exponents
-$ e_\text{A}, e_\text{B}, e_\text{C} $; fractions
-$ f_\text{A}, f_\text{B}, f_\text{C} $.
+$s_\text{A}, s_\text{B}, s_\text{C}$; exponents
+$e_\text{A}, e_\text{B}, e_\text{C}$; fractions
+$f_\text{A}, f_\text{B}, f_\text{C}$.
 
-$$\begin{aligned}
-    \text{A} \times \text{B} &= \left(-1\right)^{s_\text{A} + s_\text{B}} 2^{e_\text{A} + e_\text{B} - 2b} \left(1 + f_\text{A}\right) \left(1 + f_\text{B}\right) = \left(-1\right)^{s_\text{A} + s_\text{B}} 2^{e_\text{A} + e_\text{B} - 2b} \left(1 + f_\text{A} + f_\text{B} + f_\text{A} f_\text{B}\right)\\
-    &= \left(-1\right)^{s_\text{C}} 2^{e_\text{C} - b} \left(1 + f_\text{C}\right), \text{ then } s_\text{C} = \text{XOR(\begin{math} s_\text{A}, s_\text{B} \end{math})}, e_\text{C} = e_\text{A} + e_\text{B} - b, f_\text{C} = f_\text{A} + f_\text{B} + f_\text{A} f_\text{B}
-\end{aligned}$$
+$$\text{A} \times \text{B} &= \left(-1\right)^{s_\text{A} + s_\text{B}} 2^{e_\text{A} + e_\text{B} - 2b} \left(1 + f_\text{A}\right) \left(1 + f_\text{B}\right) = \left(-1\right)^{s_\text{A} + s_\text{B}} 2^{e_\text{A} + e_\text{B} - 2b} \left(1 + f_\text{A} + f_\text{B} + f_\text{A} f_\text{B}\right)\\
+    &= \left(-1\right)^{s_\text{C}} 2^{e_\text{C} - b} \left(1 + f_\text{C}\right), \text{ then } s_\text{C} = \text{XOR(\begin{math} s_\text{A}, s_\text{B} \end{math})}, e_\text{C} = e_\text{A} + e_\text{B} - b, f_\text{C} = f_\text{A} + f_\text{B} + f_\text{A} f_\text{B}$$
 
 but the fraction part should be between 0 and 1 thus, if
-$ 1 + f_\text{C} \ge 2 $ then $ 1 + f_\text{C} $ is divided by 2 and the
-fraction part of this new number $ f^\prime_\text{C} $ is rounded to
+$1 + f_\text{C} \ge 2$ then $1 + f_\text{C}$ is divided by 2 and the
+fraction part of this new number $f^\prime_\text{C}$ is rounded to
 10-bits to be saved in C. It is normally rounded to the neares 10-bit
 number except when the exact result is in between two other numbers,
 then the number is rounded so that the LSB is 0 i.e. even. The number is
-divided by 2 therefore $ e^\prime_\text{C} = e_\text{C} + 1 $. Now let's
+divided by 2 therefore $e^\prime_\text{C} = e_\text{C} + 1$. Now let's
 see the Issie implementation in
 Figure [6](#fig:full_binary16){reference-type="ref"
 reference="fig:full_binary16"}. The sign bit is calculated with the XOR
@@ -98,34 +96,34 @@ If the result is signed, negative, it can not be expressed in IEEE 754
 format and should be rounded to 0. The sign bit which is the MSB is
 checked and if it is not set the lower 5 bits of the result is returned
 as the new exponent. This implements the equation
-$ e_\text{C} = e_\text{A} + e_\text{B} + \text{EXPIN} - b $.
+$e_\text{C} = e_\text{A} + e_\text{B} + \text{EXPIN} - b$.
 
 ![EXP sheet](/media/exp.png){#fig:exp width="8cm"}
 
 The FRAC sheet in Figure [8](#fig:frac){reference-type="ref"
 reference="fig:frac"} multiplies two 10-bit fractions to get a 20-bit
 result in FRACMUL sheet. Then, two 10-bit fractions are added to get a
-11-bit result $ f_\text{A} + f_\text{B} $. Now the sum and
+11-bit result $f_\text{A} + f_\text{B}$. Now the sum and
 multiplication of the fractions are also added together but since the
-MSB of the sum of fractions is the coefficient of the term $ 2^0 $
+MSB of the sum of fractions is the coefficient of the term $2^0$
 multiplication result should be aligned by adding a 0 as the highest bit
-but instead 1 is added to implement $ 1 + f_\text{A} f_\text{B} $ in
+but instead 1 is added to implement $1 + f_\text{A} f_\text{B}$ in
 order to implement both operations in a single stage. Also the lowest 10
 bits of the multiplication are not necessary for this addition as the
 sum of fractions does not have these 10 bits. After the sum and
 multiplication results are added the lowest 10 bits of the
 multiplication results are merged back to be precise. The result of
 these operations is
-$ 1 + f_\text{A} + f_\text{B} + f_\text{A} f_\text{B} = 1 + f_\text{C} $.
-Previously it was shown that if $ 1 + f_\text{C} \ge 2 $ it should be
+$1 + f_\text{A} + f_\text{B} + f_\text{A} f_\text{B} = 1 + f_\text{C}$.
+Previously it was shown that if $1 + f_\text{C} \ge 2$ it should be
 divided by two. This condition can be checked by the 21st bit of the
-addition which is the coefficient of the term $ 2^1 $. Let's investigate
+addition which is the coefficient of the term $2^1$. Let's investigate
 the rounding for the condition where
-$ \left(1 + f_\text{C}\right)\text{[21]} = 0 $. Firstly, as a 10-bit
+$\left(1 + f_\text{C}\right)\text{[21]} = 0$. Firstly, as a 10-bit
 fraction is required, lower 10 bits of the fraction are rounded to the
 nearest number unless the exact answer is exactly in between two
 numbers. This is done by adding b0000000000000111111111 to
-$ 1 + f_\text{C} $ so if it is even $ 2^{-20} $ closer to the upper
+$1 + f_\text{C}$ so if it is even $2^{-20}$ closer to the upper
 number, it will be rounded to that. Otherwise higher 12 bits will remain
 unchanged. If the number is exactly in between two numbers,
 b0000000000001111111111 is added so if the 9th bit was set it would
