@@ -1,0 +1,8 @@
+MOV R0, #1
+MOV R1, #2
+ADD R2, R1, R2
+ADD R3, R2, R2
+ADD R3, #1
+MOV R4, R3
+MOV R5, R3
+
