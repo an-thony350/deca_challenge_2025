@@ -69,7 +69,7 @@ $e_\text{A}, e_\text{B}, e_\text{C}$; fractions
 $f_\text{A}, f_\text{B}, f_\text{C}$.
 
 $$\text{A} \times \text{B} = \left(-1\right)^{s_\text{A} + s_\text{B}} 2^{e_\text{A} + e_\text{B} - 2b} \left(1 + f_\text{A}\right) \left(1 + f_\text{B}\right) = \left(-1\right)^{s_\text{A} + s_\text{B}} 2^{e_\text{A} + e_\text{B} - 2b} \left(1 + f_\text{A} + f_\text{B} + f_\text{A} f_\text{B}\right)\\
-    = \left(-1\right)^{s_\text{C}} 2^{e_\text{C} - b} \left(1 + f_\text{C}\right), \text{ then } s_\text{C} = \text{XOR(\begin{math} s_\text{A}, s_\text{B} \end{math})}, e_\text{C} = e_\text{A} + e_\text{B} - b, f_\text{C} = f_\text{A} + f_\text{B} + f_\text{A} f_\text{B}$$
+    = \left(-1\right)^{s_\text{C}} 2^{e_\text{C} - b} \left(1 + f_\text{C}\right), \text{ then } s_\text{C} = \text{XOR($s_\text{A}, s_\text{B}$)}, e_\text{C} = e_\text{A} + e_\text{B} - b, f_\text{C} = f_\text{A} + f_\text{B} + f_\text{A} f_\text{B}$$
 
 but the fraction part should be between 0 and 1 thus, if
 $1 + f_\text{C} \ge 2$ then $1 + f_\text{C}$ is divided by 2 and the
