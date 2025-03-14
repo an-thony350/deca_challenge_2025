@@ -564,26 +564,43 @@ let parseLines (txtL: string list) =
             | lst -> Error lst)
     | lst -> Error lst
 
-let runPythonMacroParser (inputPath: string) (outputPath: string) =
-    let startInfo = Diagnostics.ProcessStartInfo() // Use Diagnostics.ProcessStartInfo
-    startInfo.FileName <- "python"
-    startInfo.Arguments <- $"\"../macro_parser.py\" \"{inputPath}\" \"{outputPath}\""
-    startInfo.UseShellExecute <- false
-    startInfo.RedirectStandardOutput <- true
-    startInfo.RedirectStandardError <- true
-    startInfo.CreateNoWindow <- true
+/// Runs the python macro parser to preprocess the input file
+/// Input: Path to the original file
+/// Output: Path to the processed file after macro expansion
+/// Returns: Ok string with the output of the macro parser
+///          Error string with the error message
 
-    use proc = new Diagnostics.Process() // Use Diagnostics.Process
+
+
+let runPythonMacroParser (inputPath: string) (outputPath: string) =                         // Configure the python macro parser
+    let startInfo = Diagnostics.ProcessStartInfo()                                          
+    startInfo.FileName <- "python"                                                          // Ensures correct python version is used
+    startInfo.Arguments <- $"\"../macro_parser.py\" \"{inputPath}\" \"{outputPath}\""       // File paths to the macro parser and input/output files
+    startInfo.UseShellExecute <- false                                                      // Redirects input/output to the process
+    startInfo.RedirectStandardOutput <- true                                                // Captures the output of the process
+    startInfo.RedirectStandardError <- true                                                 // Captures the error output of the process
+    startInfo.CreateNoWindow <- true                                                        // Hides the process window
+
+    // Start process
+    use proc = new Diagnostics.Process() 
     proc.StartInfo <- startInfo
     proc.Start() |> ignore
+    //Wait for process to exit and captur i/o errors
     let output = proc.StandardOutput.ReadToEnd()
     let error = proc.StandardError.ReadToEnd()
     proc.WaitForExit()
 
+    // Check for errors
     if proc.ExitCode <> 0 then
         Error $"Macro parser failed with exit code {proc.ExitCode}: {error}"
     else
         Ok output
+
+/// Main assembler workflow:
+/// 1 - Preprocess input .txt with macro_parser.py (expand macros).
+/// 2 - Parse the processed assembly into machine code.
+/// 3 - Write machine code to .ram file.
+/// Note: Temporary .processed.txt files are deleted after assembly.
 
 let assembler (path:string) =
     let formatAssembly (lines: Line list) =
@@ -593,13 +610,12 @@ let assembler (path:string) =
             let word = match line.Word with | Some (Ok n) -> n | _ -> 0u
             sprintf "%s" $"0x%02x{num-1u} 0x%04x{word}")
     
-
     let ext = IO.Path.GetExtension path
     let dir = IO.Path.GetDirectoryName path
     match ext.ToUpper() with
     | ".TXT" ->
         // Preprocess with Python macro parser
-        let processedPath = IO.Path.ChangeExtension(path, "processed.txt")
+        let processedPath = IO.Path.ChangeExtension(path, "processed.txt")                  // Temporary file for macro-expaneded assembly code
         match runPythonMacroParser path processedPath with
         | Ok _ ->
             // Read the preprocessed file
@@ -618,8 +634,8 @@ let assembler (path:string) =
                     printfn $"Successful assembly of '{path}'"
                     printfn $"{output.Length} lines written to '{pathOut}'"
             // Clean up temporary file
-            IO.File.Delete(processedPath)
-        | Error e ->
+            IO.File.Delete(processedPath)                                                   // Delete the temporary file; avoids clutter
+        | Error e ->                                                                        // Error handling for macro parser
             printfn $"Macro preprocessing failed: {e}"
     | s -> 
         printfn $"EEP1asm is watching {dir}, noted a file extension {ext} \
