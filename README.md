@@ -27,7 +27,7 @@ MOV %1, %2
 
 The macro definition starts with `%macro` and continues with the name of the macro `MOV2` and the number of arguments required for this macro which is `3` in this case and nth argument is accessed with `%n`. Arguments can be anything but it will assemble only if it is valid assembly code. In this example value or register in `%3` is MOVed into register `%2` and the value in register `%2`, is moved into register `%1`. Let's call `MOVV R1, R2, 16`, the parsed program would be:
 
-```
+```asm
 MOV R2, 16
 MOV R1, R2
 ```
