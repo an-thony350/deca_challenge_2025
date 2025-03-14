@@ -53,7 +53,7 @@ can be converted back to decimal. Let
 $s = \text{sign} = \text{N[15]}$,
 $e = \text{exponent} = \text{N[14:10]}$,
 $f = \text{fraction} = \text{N[9:0]}$ and
-$b = 2^{\text{sizeof(e) - 1}} = 2^4 - 1 = 15 = \text{base}$.
+$b = 2^{\text{sizeof(e) - 1}} = 2^4 - 1 = 15 = \text{bias}$.
 
 $$\left(-1\right)^s 2^{e - b} \left(1 + f\right) = \left(-1\right)^0 2^{\left(15 - 15\right)} \left(1 + 0\right) = \left(-1\right)^0 2^0 = 1$$
 
