@@ -1,0 +1,3 @@
+[submodule "eepAssembler"]
+	path = eepAssembler
+	url = https://github.com/tomcl/eepAssembler.git
