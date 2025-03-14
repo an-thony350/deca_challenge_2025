@@ -159,8 +159,8 @@ ADD R0, R1
 The R1 is ANDed with 0x00FF as the numbers are sign extended which is a
 problem. Also this approach requires 3 registers and 7 lines of code,
 instead new hardware could be used. MOVR sheet in
-[the figure below](#movr) shifts INA 2 bytes to the left and sets the
-lower 2 bytes to the lower 2 bytes of INB. This new hardware is added
+[the figure below](#movr) shifts INA a byte to the left and sets the
+lower byte to the lower byte of INB. This new hardware is added
 to the datapath as MOVC7.
 
 <a name="movr">![MOVR sheet](/media/movr.png)</a>
