@@ -40,19 +40,13 @@ MOV R1, R2
 
 The standart IEEE 754 defines how scientific notation is implemented in
 digital systems. For example, the half-precision binary16 floating point
-number is implemented as in
+number is implemented as in [the table below](###n=1-in-binary16-representation)
 
-###
-Table [17](#tab:binary16){reference-type="ref"
-reference="tab:binary16"}.
+### N=1 in binary16 representation
 
-::: {#tab:binary16}
-       sign   exponent                   fraction
-  --- ------ ---------- --- --- --- --- ---------- --- --- --- --- --- --- --- --- ---
-   N    0        0       1   1   1   1      0       0   0   0   0   0   0   0   0   0
-
-  : N=1 in binary16 representation
-:::
+|sign|exponent|fraction|
+|----|--------|----------|
+|0|01111|0000000000|
 
 This number N is the floating point representation of 1 in binary 16. It
 can be converted back to decimal. Let
