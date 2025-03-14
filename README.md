@@ -1,6 +1,6 @@
 # DECA Challenge 2025
 
-Modified version of the EEP1 CPU with half-precision floating point multiplication support, MOVR instruction and a minimal macro parser implementation in Python macro_parser.py
+Modified version of the EEP1 CPU with half-precision floating point multiplication support, MOVR instruction, a minimal macro parser implementation in Python `macro_parser.py' and a calculator for multiplying half-precision floating numbers `half_precision_calculator.py`.
 
 ## The Software
 
@@ -197,8 +197,8 @@ MOVC7 %1, %2
 MOV16 R0, R1, 0x67, 0xE9
 ```
 
-Then the Python script is called, *python3 macro_parser.py $ < $input
-file$ > $ $ < $output file$ > $*, and the output file can be assembled
+Then the Python script is called, `python3 macro_parser.py <input
+file> <output file>`, and the output file can be assembled
 by eepAssembler. The eepAssembler is modified to pass the files through
 the macro parser before assembling them making the process seamless. The
 final code for MOVing two 16-bit numbers into registers and multiplying
