@@ -11,9 +11,13 @@ ops = list()
 
 for op in argv[1:]:
     try:
-        ops.append(float(op))
+        try:
+            ops.append(float(op))
+        except:
+            ops.append(struct.unpack('e', struct.pack('H', int(op, 0)))[0])
     except:
-        ops.append(struct.unpack('e', struct.pack('H', int(op, 0)))[0])
+        err = f'{op} is not a float or half-precision floating point'
+        raise ValueError(err)
 
 p = ops[0]*ops[1]
 

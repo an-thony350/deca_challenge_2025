@@ -2,7 +2,7 @@ import sys
 import struct
 
 if len(sys.argv) != 3:
-	print(f'Usage: python3 {sys.argv[0]} <input filename> <output filename>')
+	print(f'Usage: python3 {sys.argv[0]} <input file> <output file>')
 	exit()
 
 file_in = sys.argv[1]
