@@ -194,7 +194,7 @@ MOV %1, %3
 %macro FLOATMUL 6
 FLOATMOV %1, %2, %3
 FLOATMOV %4, %5, %6
-MOVC2 %1, %3
+MOVC2 %1, %4
 %endmacro
 FLOATMUL R0, 0x67, 0xE9, R1, 0x32, 0x7B
 ```
