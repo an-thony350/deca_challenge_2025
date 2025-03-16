@@ -1,6 +1,6 @@
 # DECA Challenge 2025
 
-Modified version of the EEP1 CPU with half-precision floating point multiplication support, MOVR instruction, a minimal macro parser implementation in Python `macro_parser.py` and a calculator for multiplying half-precision floating numbers `half_precision_calculator.py`.
+Modified version of the EEP1 CPU with half-precision floating point multiplication support, a minimal macro parser implementation in Python `macro_parser.py`, a calculator for multiplying half-precision floating numbers `half_precision_calculator.py` and a modified `eepAssembler` that has a minimal macro implementation.
 
 ## The Software
 
@@ -25,9 +25,10 @@ This Python script searches for macro definitions and parses them in `input file
 MOV %2, %3
 MOV %1, %2
 %endmacro
+MOV2 R1, R2, 16
 ```
 
-The macro definition starts with `%macro` and continues with the name of the macro `MOV2` and the number of arguments required for this macro which is `3` in this case and nth argument is accessed with `%n`. Arguments can be anything but it will assemble only if it is valid assembly code. In this example value or register in `%3` is MOVed into register `%2` and the value in register `%2`, is moved into register `%1`. Let's call `MOVV R1, R2, 16`, the parsed program would be:
+The macro definition starts with `%macro` and continues with the name of the macro `MOV2` and the number of arguments required for this macro which is `3` in this case and nth argument is accessed with `%n`. Arguments can be anything but it will assemble only if it is valid assembly code. In this example value or register in `%3` is MOVed into register `%2` and the value in register `%2`, is moved into register `%1`. The parsed program would be:
 
 ```asm
 MOV R2, 16
@@ -147,54 +148,29 @@ example a 16-bit number can be moved into R0 with the program in
 ### MOVing 0x67E9 into R0 purely with software
 
 ```asm
-MOV R0, 0x67
-MOV R1, 0xE9
-MOV R2, 0xFF
-LSR R2, R2, 8
-AND R1, R1, R2
-LSL R0, R0, 8
-ADD R0, R1
+EXT 0x67
+MOV R0, 0xE9
 ```
 
-The R1 is ANDed with 0x00FF as the numbers are sign extended which is a
-problem. Also this approach requires 3 registers and 7 lines of code,
-instead new hardware could be used. MOVR sheet in
-[the figure below](#movr) shifts INA a byte to the left and sets the
-lower byte to the lower byte of INB. This new hardware is added
-to the datapath as MOVC7.
-
-<a name="movr">![MOVR sheet](/media/movr.png)</a>
-
-The code with this new instruction is in
-[the code below](###moving-0x67e9-into-r0-with-movr)
-Now only 2 registers and 3 lines of code are required.
-
-### MOVing 0x67E9 into R0 with MOVR
-
-```asm
-MOV R0, 0x67
-MOV R1, 0xE9
-MOVC7 R0, R1
-```
-
-Still, writing three lines of code for a single task is excessive if
-there will be lots of such operation. Most modern assemblers allow
-definitions of macros but eepAssembler does not support it (yet) but a
-small script can be used to preprocess the code before passing it to the
-assembler. For this task, a minimal Python implementation is created. It
-is a simplified version of NASM style multiline macro definition with a
-syntax similar to NASM. The code with the macro definition is in
-the [code block below](###moving-0x67E9-into-r0-with-macro-definition).
+The EXT instruction sets the higher byte of the immediate value so that
+a 16-bit value can be MOVed in 2 instructions and 1 register.  Still, 2
+lines of code for a single task is unnecessary if there will be lots of
+such operation. Most modern assemblers allow definitions of macros but
+eepAssembler does not support it (yet) but a small script can be used to
+preprocess the code before passing it to the assembler. For this task, a
+minimal Python implementation is created. It is a simplified version of
+NASM style multiline macro definition with a syntax similar to NASM. The
+code with the macro definition is in the
+[code block below](###moving-0x67E9-into-r0-with-macro-definition).
 
 ### MOVing 0x67E9 into R0 with macro definition 
 
 ```asm
-%macro MOV16 4
+%macro FLOATMOV 3
+EXT %2
 MOV %1, %3
-MOV %2, %4
-MOVC7 %1, %2
 %endmacro
-MOV16 R0, R1, 0x67, 0xE9
+FLOATMOV R0, 0x67, 0xE9
 ```
 
 Then the Python script is called, `python3 macro_parser.py <input
@@ -203,20 +179,36 @@ by eepAssembler. The eepAssembler is modified to pass the files through
 the macro parser before assembling them making the process seamless. The
 final code for MOVing two 16-bit numbers into registers and multiplying
 them according to IEEE 754 is in
-[the code block below](###multiplying-two-half-precision-floating-point-numbers-0x67e9=2025-and-0x327b=0.2025)
+[the code block below](###multiplying-two-half-precision-floating-point-numbers-0x67e9=2025-and-0x327b=0.2025-with-macros)
 . Finally; it is seen that
 $2025 \times 0.2025 = 410$, or in half-precision floating point terms
 $\text{0x67E9} \times \text{0x327B} = \text{0x5E68}$.
 
+### multiplying two half-precision floating point numbers 0x67E9=2025 and 0x327B=0.2025 with macros
+
+```asm
+%macro FLOATMOV 3
+EXT %2
+MOV %1, %3
+%endmacro
+%macro FLOATMUL 6
+FLOATMOV %1, %2, %3
+FLOATMOV %4, %5, %6
+MOVC2 %1, %3
+%endmacro
+FLOATMUL R0, 0x67, 0xE9, R1, 0x32, 0x7B
+```
+
+Then the parsed program, or the program without macro definitions would be as in [the code block below](###multiplying-two-half-precision-floating-point-numbers-0x67e9=2025-and-0x327b=0.2025)
+
 ### multiplying two half-precision floating point numbers 0x67E9=2025 and 0x327B=0.2025
 
 ```asm
-%macro MOV16 4
-MOV %1, %3
-MOV %2, %4
-MOVC7 %1, %2
-%endmacro
-MOV16 R0, R1, 0x67, 0xE9
-MOV16 R1, R2, 0x32, 0x7B
+EXT 0x67
+MOV R0, 0xE9
+EXT 0x32
+MOV R1, 0x7B
 MOVC2 R0, R1
 ```
+
+Of course with macro definitions this program is longer but in a complex program macros can drastically simplify the code.

@@ -575,7 +575,7 @@ let parseLines (txtL: string list) =
 let runPythonMacroParser (inputPath: string) (outputPath: string) =                         // Configure the python macro parser
     let startInfo = Diagnostics.ProcessStartInfo()                                          
     startInfo.FileName <- "python"                                                          // Ensures correct python version is used
-    startInfo.Arguments <- $"\"../macro_parser.py\" \"{inputPath}\" \"{outputPath}\""       // File paths to the macro parser and input/output files
+    startInfo.Arguments <- $"\"macro_parser.py\" \"{inputPath}\" \"{outputPath}\""       // File paths to the macro parser and input/output files
     startInfo.UseShellExecute <- false                                                      // Redirects input/output to the process
     startInfo.RedirectStandardOutput <- true                                                // Captures the output of the process
     startInfo.RedirectStandardError <- true                                                 // Captures the error output of the process
@@ -615,7 +615,7 @@ let assembler (path:string) =
     match ext.ToUpper() with
     | ".TXT" ->
         // Preprocess with Python macro parser
-        let processedPath = IO.Path.ChangeExtension(path, "processed.txt")                  // Temporary file for macro-expaneded assembly code
+        let processedPath = IO.Path.ChangeExtension(path, "processed")                  // Temporary file for macro-expaneded assembly code
         match runPythonMacroParser path processedPath with
         | Ok _ ->
             // Read the preprocessed file
