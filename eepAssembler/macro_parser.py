@@ -32,7 +32,7 @@ i = 0
 with open(file_in, 'r') as file:
     lines = file.readlines()
     while i < len(lines):
-        line = lines[i]
+        line = lines[i].strip()
         if line.upper().startswith('%MACRO'):
             argv = line.split(' ')
             if len(argv) != 3:
@@ -58,10 +58,10 @@ with open(file_in, 'r') as file:
 
         elif macro_lock:
             lines[i] = ''
-            macros[current_macro][1] += line
+            macros[current_macro][1] += line + "\n"
 
-        elif (line.split(' ')[0].upper() in macros.keys()):
-            argv = line[:-1].strip().split(' ')
+        elif (line.strip().split(' ')[0].upper() in macros.keys()):
+            argv = line.split(' ')
             for j in range(len(argv)):
                 argv[j] = argv[j].strip(',').strip(' ')
             argc = len(argv) - 1
